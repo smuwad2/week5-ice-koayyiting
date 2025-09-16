@@ -31,7 +31,9 @@
                     }
                 }).then(response => {
                     document.getElementById("suggestions").innerText = response.data;
-                })
+                }).catch(err => {
+                    console.log(err);
+                });
             }
             // how to test, npm start, add the file behind the url to access: https://bug-free-broccoli-94v75pjj94xfpr9p-3000.app.github.dev/ex1/search.html
             // can see in the PORTS TAB (bsside the TERMINAL Tab) 
