@@ -126,6 +126,7 @@ app.get('/', (req, res) => {
 // Endpoint to handle query
 app.get('/suggest', (req, res) => {
   console.log("suggest endpoint called")
+  // req.query.[params] this tells u what param u need in the html js
   const query = req.query.query || '';
   let hint = '';
 

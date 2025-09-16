@@ -11,7 +11,7 @@
         <div class="bg-light text-center p-5 mb-4">
             <h2>Choose an option:</h2>
             <label for="limit">Limit:</label>
-            <input id="limit" type="number" min=1 max=5 value=1>
+            <input id="limit" type="number" min=1 max=5 value=1 onchange="getData()">
             <select onchange="getData()" id="type">
                 <option value="customers">Customers</option>
                 <option value="products">Products</option>
@@ -23,8 +23,79 @@
 
         </div>
         <script>
-            function getData() {
- 
+            async function getData() { // everytime we change a selection this function will run 
+                const limitVal = document.getElementById("limit").value;
+                const categoryVal = document.getElementById("type").value;
+                
+                try{
+                    //issue an axios get reuest to "/data" and passing in the required parameters
+                    const response = await axios.get("/data",{
+                        "params":{ //telling the backend what u want aka the key of json
+                            "type": categoryVal, //get this by reading the index.js /data function
+                            "limit": limitVal
+                        }
+                    })
+                    createTable(response.data);
+                }catch(error){
+                    console.log(error);
+                }
+
+                function createTable(dataObj){
+                    const resultDiv = document.getElementById("result");
+                    //clear previous content
+                    while (resultDiv.firstChild){ //if div got smth return true
+                        resultDiv.firstChild.remove();
+                    } 
+
+                    //create h2 element
+                    const h2Elem = document.createElement("h2");
+                    const h2Val = dataObj["type"];
+                    h2Elem.innerText = h2Val;
+                    resultDiv.appendChild(h2Elem);
+
+                    //Example HTML Table
+                    // <table>
+                    //     <tr>
+                    //         <th></th>
+                    //     </tr>
+                    //     <tr>
+                    //         <td></td>
+                    //     </tr>
+                    // </table>
+                    //create table header
+                    const tableElem = document.createElement("table");
+                    tableElem.className = "table"; //make it a bootstrap table
+                    const tBodyElem = document.createElement("tbody");
+
+                    //create table heading row
+                    const trElem = document.createElement("tr");
+                    //retrieve the keys from the first obj on records array
+                    const tblHeadings = Object.keys(dataObj["records"][0]); //js function to get keys of json in array format
+                    for (const headingVal of tblHeadings){
+                        const thElem = document.createElement("th");
+                        thElem.innerText = headingVal;
+                        trElem.appendChild(thElem);
+                    }
+                    tBodyElem.appendChild(trElem);
+                    tableElem.appendChild(tBodyElem);
+                    resultDiv.appendChild(tableElem);
+
+                    //create the inner content of table
+                    for (let i=0; i<dataObj["records"].length; i++){
+                        const trElem = document.createElement("tr");
+                        for (let j=0; j<tblHeadings.length; j++){
+                            const tdVal = dataObj["records"][i][tblHeadings[j]]; //i is the list of obj index
+                            const tdElem = document.createElement("td");
+                            tdElem.innerText = tdVal;
+                            trElem.appendChild(tdElem);
+                        }
+                        tBodyElem.appendChild(trElem);
+
+                    }
+                    tableElem.appendChild(tBodyElem);
+                    resultDiv.appendChild(tableElem);
+                }
+                
             }
 
         </script>
