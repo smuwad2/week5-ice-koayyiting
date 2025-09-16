@@ -38,28 +38,92 @@
             // and display them in the select element
             // url: http://localhost:3010/categories
 
-        }
-
-        function showCategories(categories) {
-            // Display the categories in the select element
+            // get categories from backend, showCategories() add the categories in the dropdown
+            axios.get("/categories")
+            .then(response => {
+                console.log(response.data);
+                showCategories(response.data);
+            })
+            .catch(error => { //catch error if any
+                console.log(error);
+            });
             
         }
 
-        function getItems() {
+        function showCategories(categories) {
+        // Display the categories in the select element
+
+        // add categories to select dropdown list 
+            const selectElem = document.getElementById("selectCategory");
+            for (catVal of categories){
+                // create option element for each category
+                const optElem = document.createElement("option");
+                optElem.innerText = catVal; // value not define will be default as this
+                
+                // add option element to select element
+                selectElem.appendChild(optElem);
+            }
+        }
+
+        async function getItems() {
             // Fetch items based on the selected category
             // If "To select" is chosen, do nothing
             // If "All" is chosen, fetch all items
             // If a specific category is chosen, fetch items for that category
             // url: http://localhost:3010/items?category=categoryName
-            
+
+            // retrieve the selected category
+            const categoryVal = document.getElementById("selectCategory").value;
+
+            try {
+                // get items from backend, and 
+                const response = await axios.get("/items",{
+                    "params": {
+                        "category": categoryVal
+                    }
+                })
+                showItems(response.data);
+                console.log(response.data);
+            }catch(error){
+                console.log(error);
+            }
+                
         }
 
         function showItems(items) {
             // Display the items in the itemsList div
             // Each item should be displayed in a bootstrap card format
             // The display should be responsive 3 columns on large screens, 2 columns on medium screens, and 1 column on small screens
+            //col-12 (entire row) below 768px, switches to col-md-6 (2 items/row) between 768px and 991px, and then uses col-lg-4 (3 items/row) at 992px and above
+            //<div class="col-12 col-md-6 col-lg-4 mb-3"> 
+            // 0: {name: 'Milk', category: 'Dairy', quantity: 5, price: 1.2}
+            // 1: {name: 'Cheddar Cheese', category: 'Dairy', quantity: 4, price: 3.8}
+            // 2: {name: 'Yogurt', category: 'Dairy', quantity: 8, price: 0.9}
             
+            // retrieve itemList div
+            const itemListDiv = document.getElementById("itemsList");
+            
+            // loop thru the selected category items
+            for (let i=0; i<items.length; i++){
+                // create card element 
+                const cardElem = document.createElement("div");
+                cardElem.className = "card";
 
+                const cardBody = document.createElement("card-body");
+                
+                const cardText = document.createElement("card-text");
+                cardText.innerText = items[i]["price"];
+
+                const cardTitle = document.createElement("card-title");
+                cardTitle.innerText = items[i]["name"];
+
+                cardBody.appendChild(cardTitle);
+                cardBody.appendChild(cardText);
+                cardElem.appendChild(cardBody);
+                itemListDiv.appendChild(cardElem);
+                
+            }
+            
         }
 
     </script>
